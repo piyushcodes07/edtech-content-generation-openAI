@@ -4,7 +4,8 @@ from langchain.prompts.prompt import PromptTemplate
 from langchain_openai import ChatOpenAI
 from output_example import output_example_JSON
 
-def pull_content_openAI(technology_tech_course_name:str,lesson_name:str):
+
+def pull_content_openAI(technology_tech_course_name: str, lesson_name: str):
     course_page_master_prompt = """
     given the name of a technology/tech course along with the lesson name, mentioned below 
     
@@ -20,20 +21,34 @@ def pull_content_openAI(technology_tech_course_name:str,lesson_name:str):
     {output_example_JSON}
     """
 
-
-
     course_page_master_prompt_template = PromptTemplate(
-        input_variables=["technology_tech_course_name","lesson_name","output_example_JSON"],
-        template=course_page_master_prompt
+        input_variables=[
+            "technology_tech_course_name",
+            "lesson_name",
+            "output_example_JSON",
+        ],
+        template=course_page_master_prompt,
     )
 
-    llm = ChatOpenAI(temperature=0,model_name="gpt-4-turbo")
+    llm = ChatOpenAI(
+        model="gpt-4o", model_kwargs={"response_format": {"type": "json_object"}}
+    )
 
     chain = course_page_master_prompt_template | llm
-    res = chain.invoke(input={"technology_tech_course_name":technology_tech_course_name,"lesson_name":lesson_name,"output_example_JSON":output_example_JSON})
+    res = chain.invoke(
+        input={
+            "technology_tech_course_name": technology_tech_course_name,
+            "lesson_name": lesson_name,
+            "output_example_JSON": output_example_JSON,
+        }
+    )
     return res
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     load_dotenv()
-    results=pull_content_openAI(technology_tech_course_name="typescript for beginners",lesson_name="array methods")
+    results = pull_content_openAI(
+        technology_tech_course_name="typescript for beginners",
+        lesson_name="array methods"
+    )
     print(results.content)
